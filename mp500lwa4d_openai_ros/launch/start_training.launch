@@ -1,0 +1,6 @@
+<launch>
+    <!-- This version uses the openai_ros environments -->
+    <rosparam command="load" file="$(find mp500lwa4d_openai_ros)/config/mp500lwa4d_openai_qlearn.yaml" />
+    <!-- Launch the training system -->
+    <node pkg="mp500lwa4d_openai_ros" name="mp500lwa4d_world" type="start_qlearning.py" output="screen"/>
+</launch>

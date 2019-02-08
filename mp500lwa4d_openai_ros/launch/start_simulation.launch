@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="model" default="$(find mp500lwa4d_description)/urdf/robot.urdf.xacro"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="debug"  default="false" />
+    <arg name="gui" default="true" />
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time"  default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="verbose"  default="true"/>
+  </include>
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)" />
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model mp500lwa4d -z 0.1" respawn="false" output="screen" />
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+    respawn="false" output="screen">
+    <remap from="/joint_states" to="/mp500lwa4d/joint_states" />
+  </node>
+
+    <!--++++++++++++ joint_state_controller -->
+  <rosparam file="$(find mp500lwa4d_description)/controller/joint_state_controller.yaml" command="load"/>
+
+  <rosparam file="$(find mp500lwa4d_description)/controller/trajectory_controller.yaml" command="load"/>
+
+  <!--<rosparam file="$(find mp500lwa4d_description)/controller/gripper_controller.yaml" command="load"/>-->
+  <rosparam file="$(find mp500lwa4d_description)/controller/mobile_base_controller.yaml" command="load"/>
+
+  <rosparam file="$(find mp500lwa4d_description)/controller/gazebo_control.yaml" command="load"/>
+
+  <rosparam file="$(find mp500lwa4d_description)/controller/arm_controller.yaml" command="load"/>
+
+  <node name="base_controller_spawner" pkg="controller_manager" type="spawner" ns="/mp500lwa4d" args="mobile_base_controller" respawn="true" output="screen">
+      <param name="rate" value="50" />
+  </node>
+
+  <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" ns="/mp500lwa4d" args="arm/joint_trajectory_controller  gripper_controller" respawn="false" output="screen">
+     <param name="rate" value="50" />
+  </node>
+
+  <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
+      <param name="default_topic" value="/mp500lwa4d/mobile_base_controller/cmd_vel"/>
+      <remap from="/cmd_vel" to="/mp500lwa4d/mobile_base_controller/cmd_vel"/>
+  </node>
+
+</launch>
