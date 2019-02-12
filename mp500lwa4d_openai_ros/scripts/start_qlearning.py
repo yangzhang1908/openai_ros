@@ -8,10 +8,7 @@ from gym import wrappers
 # ROS packages required
 import rospy
 import rospkg
-import sys
-#sys.path.append('/home/yangz/catkin_ws/src/mp500lwa4d_openai_ros')
 # import our training environment
-#from mp500lwa4d_world import Mp500Lwa4dWorldEnv
 from openai_ros.task_envs.mp500lwa4d import mp500lwa4d_world
 
 
